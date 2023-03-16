@@ -18,6 +18,13 @@ let boardColor = "green",
   spaceColor = "black";
 (headColor = "gray"), (bodyColor = "white"), (foodColor = "red");
 
+let currentDirection = "";
+let directions = {
+  UP: "ArrowUp",
+  DOWN: "ArrowDown",
+  LEFT: "ArrowLeft",
+  RIGHT: "ArrowRight",
+};
 //draw board
 function drawBoard() {
   ctx.fillStyle = boardColor;
@@ -59,6 +66,33 @@ function createFood() {
 }
 
 //move snake
+function moveSnake() {
+  // if(!gameS)
+  let head = { ...snake[0] };
+  switch (currentDirection) {
+    case directions.UP:
+      head.y -= 1;
+      break;
+    case directions.DOWN:
+      head.y += 1;
+      break;
+    case directions.LEFT:
+      head.x -= 1;
+      break;
+    case directions.RIGHT:
+      head.x += 1;
+      break;
+  }
+  snake.pop();
+  snake.unshift();
+}
+
+document.addEventListener("keyup", setDirection);
+function setDirection(event) {
+  let newDirection = event.key;
+  // console.log(newDirection);
+  currentDirection = newDirection;
+}
 
 function frame() {
   drawBoard();
@@ -66,6 +100,8 @@ function frame() {
   createFood();
 
   drawSnake();
+  moveSnake();
+  setDirection();
 
   //   if (hitWall() || hitSelf()) {
   //     clearInterval(gameLoop);
