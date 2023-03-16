@@ -107,10 +107,5 @@ function frame() {
   createFood();
   moveSnake();
   drawSnake();
-
-  //   if (hitWall() || hitSelf()) {
-  //     clearInterval(gameLoop);
-  //     gameOver();
-  //   }
 }
 frame();
