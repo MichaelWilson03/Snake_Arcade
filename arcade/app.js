@@ -13,6 +13,7 @@ let gameBoard = {
   totalColumns: 17,
 };
 const squareSize = 25;
+let gameStarted = false;
 
 let boardColor = "green",
   spaceColor = "black";
@@ -67,7 +68,7 @@ function createFood() {
 
 //move snake
 function moveSnake() {
-  // if(!gameS)
+  if (!gameStarted) return;
   let head = { ...snake[0] };
   switch (currentDirection) {
     case directions.UP:
@@ -84,24 +85,28 @@ function moveSnake() {
       break;
   }
   snake.pop();
-  snake.unshift();
+  snake.unshift(head);
 }
 
 document.addEventListener("keyup", setDirection);
 function setDirection(event) {
   let newDirection = event.key;
   // console.log(newDirection);
+  if (!gameStarted) {
+    gameStarted = true;
+    gameLoop = setInterval(frame, FPS);
+  }
   currentDirection = newDirection;
 }
 
+//play button
+// document.addEventListener("click");
+
 function frame() {
   drawBoard();
-
   createFood();
-
-  drawSnake();
   moveSnake();
-  setDirection();
+  drawSnake();
 
   //   if (hitWall() || hitSelf()) {
   //     clearInterval(gameLoop);
@@ -109,5 +114,3 @@ function frame() {
   //   }
 }
 frame();
-
-gameLoop = setInterval(frame, FPS);
