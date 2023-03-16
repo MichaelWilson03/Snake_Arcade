@@ -1,0 +1,25 @@
+body {
+  text-align: center;
+  background-color: black;
+}
+h1 {
+  color: red;
+  font-size: 60px;
+}
+canvas {
+  border: 5px solid red;
+}
+button {
+  font-size: 40px;
+  margin: 20px;
+}
+
+#score {
+  font-size: 40px;
+  color: red;
+}
+
+#high_score {
+  font-size: 40px;
+  color: red;
+}
