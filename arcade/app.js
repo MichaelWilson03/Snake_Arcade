@@ -1,3 +1,4 @@
+// Variables
 const score = document.getElementById("score");
 const playButton = document.getElementById("play");
 const highScore = document.getElementById("high_score");
@@ -27,7 +28,17 @@ let directions = {
   LEFT: "ArrowLeft",
   RIGHT: "ArrowRight",
 };
-let pointsEarned = 0;
+
+let snake = [
+  { x: 10, y: 5 }, //head
+  { x: 10, y: 6 }, //body
+  { x: 10, y: 7 }, //tail
+];
+let foodX;
+let foodY;
+
+const startingSnake = snake.length;
+let nextDirection;
 
 //draw board
 function drawBoard() {
@@ -42,12 +53,6 @@ function drawSquare(x, y, color) {
 }
 
 //draw snake
-let snake = [
-  { x: 10, y: 5 }, //head
-  { x: 10, y: 6 }, //body
-  { x: 10, y: 7 }, //tail
-];
-let nextDirection;
 
 function drawSnake() {
   snake.forEach((square, i) => {
@@ -62,9 +67,6 @@ function removeSnake() {
 
 //draw food
 
-let foodX;
-let foodY;
-
 function createFood() {
   foodY = Math.floor(Math.random() * gameBoard.totalColumns);
   foodX = Math.floor(Math.random() * gameBoard.totalRows);
@@ -74,134 +76,79 @@ function createFood() {
   drawSquare(foodX, foodY, foodColor);
 }
 
-// move snake
-function moveSnake(event) {
-  if (!gameStarted) return;
-  nextDirection = { ...snake[0] };
-  removeSnake();
-  switch (event.key) {
-    case directions.UP:
-      nextDirection.y--;
-      snake.unshift(nextDirection);
-      break;
-    case directions.DOWN:
-      nextDirection.y++;
-      snake.unshift(nextDirection);
-      break;
-    case directions.LEFT:
-      nextDirection.x--;
-      snake.unshift(nextDirection);
-      break;
-    case directions.RIGHT:
-      nextDirection.x++;
-      snake.unshift(nextDirection);
-      break;
-  }
-  if (nextDirection.x === foodX && nextDirection.y === foodY) {
-    createFood();
-  } else {
-    snake.pop();
-  }
-  drawSnake();
-}
-
-document.addEventListener("keydown", move);
+//start game with play button up being first move
 playButton.addEventListener("click", function () {
-  // moveRight();
-  gameStarted = setInterval(moveUp, FPS);
+  moveSnake(directions.UP);
+  gameStarted = setInterval(moveSnake, FPS, directions.UP);
   axis = "x";
 });
 
-function moveRight() {
+// move snake
+document.addEventListener("keydown", move);
+
+function moveSnake(direction) {
   removeSnake();
   nextDirection = { ...snake[0] };
-  nextDirection.x++;
+  switch (direction) {
+    case directions.UP:
+      axis = "y";
+      nextDirection.y--;
+      break;
+
+    case directions.DOWN:
+      axis = "y";
+      nextDirection.y++;
+      break;
+    case directions.RIGHT:
+      axis = "x";
+      nextDirection.x++;
+      break;
+    case directions.LEFT:
+      axis = "x";
+      nextDirection.x--;
+      break;
+  }
   checkGameOver();
   if (!gameStarted) return;
   snake.unshift(nextDirection);
+  // if food eaten put food in different position
   if (nextDirection.x === foodX && nextDirection.y === foodY) {
     createFood();
+
+    scoreCounter();
   } else {
     snake.pop();
   }
   drawSnake();
-  axis = "x";
-}
 
-function moveLeft() {
-  removeSnake();
-  nextDirection = { ...snake[0] };
-  nextDirection.x--;
-  checkGameOver();
-  if (!gameStarted) return;
-  snake.unshift(nextDirection);
-  if (nextDirection.x === foodX && nextDirection.y === foodY) {
-    createFood();
-  } else {
-    snake.pop();
-  }
-  drawSnake();
-  axis = "x";
+  // continue onto execution
 }
-
-function moveUp() {
-  removeSnake();
-  nextDirection = { ...snake[0] };
-  nextDirection.y--;
-  checkGameOver();
-  if (!gameStarted) return;
-  snake.unshift(nextDirection);
-  if (nextDirection.x === foodX && nextDirection.y === foodY) {
-    createFood();
-  } else {
-    snake.pop();
-  }
-  drawSnake();
-  axis = "y";
-}
-
-function moveDown() {
-  removeSnake();
-  nextDirection = { ...snake[0] };
-  nextDirection.y++;
-  checkGameOver();
-  if (!gameStarted) return;
-  snake.unshift(nextDirection);
-  if (nextDirection.x === foodX && nextDirection.y === foodY) {
-    createFood();
-  } else {
-    snake.pop();
-  }
-  drawSnake();
-  axis = "y";
-}
-
 function move(event) {
   if (!gameStarted) return;
   switch (event.key) {
     case directions.UP:
       if (axis === "y") return;
-      moveUp();
+      moveSnake(directions.UP);
       clearInterval(gameStarted);
-      gameStarted = setInterval(moveUp, FPS);
+      gameStarted = setInterval(moveSnake, FPS, directions.UP);
       break;
     case directions.DOWN:
       if (axis === "y") return;
-      moveDown();
+      moveSnake(directions.DOWN);
       clearInterval(gameStarted);
-      gameStarted = setInterval(moveDown, FPS);
+      gameStarted = setInterval(moveSnake, FPS, directions.DOWN);
       break;
     case directions.RIGHT:
       if (axis === "x") return;
-      moveRight();
+      moveSnake(directions.RIGHT);
       clearInterval(gameStarted);
-      gameStarted = setInterval(moveRight, FPS);
+      gameStarted = setInterval(moveSnake, FPS, directions.RIGHT);
       break;
     case directions.LEFT:
       if (axis === "x") return;
-      moveLeft();
+      moveSnake(directions.LEFT);
       clearInterval(gameStarted);
-      gameStarted = setInterval(moveLeft, FPS);
+      gameStarted = setInterval(moveSnake, FPS, directions.LEFT);
       break;
   }
 }
@@ -223,7 +170,7 @@ function checkGameOver() {
 
     {
     }
-    alert(`Game Over!`);
+    alert(`Game Over! Your score was ${pointsEarned}`);
     snake = [
       { x: 10, y: 5 }, //head
       { x: 10, y: 6 }, //body
@@ -234,11 +181,57 @@ function checkGameOver() {
     createFood();
   }
 }
+
 // pointsEarned
-const startingSnake = snake.length;
+
 function scoreCounter() {
   pointsEarned = snake.length - startingSnake;
   score.innerHTML = `Score : ${pointsEarned}`;
+}
+let startX, startY;
+
+// Add touch event listeners to the game container
+document.addEventListener("touchstart", touchStart);
+document.addEventListener("touchmove", touchMove);
+
+function touchStart(e) {
+  // Get the starting touch position
+  startX = e.touches[0].clientX;
+  startY = e.touches[0].clientY;
+}
+
+function touchMove(e) {
+  // Get the current touch position
+  let currentX = e.touches[0].clientX;
+  let currentY = e.touches[0].clientY;
+
+  // Calculate the distance traveled in the X and Y direction
+  let deltaX = currentX - startX;
+  let deltaY = currentY - startY;
+
+  // Determine the direction of the swipe
+  if (Math.abs(deltaX) > Math.abs(deltaY)) {
+    // Swipe in the X direction
+    if (deltaX > 0) {
+      // Swipe right
+      moveSnake(directions.RIGHT);
+    } else {
+      // Swipe left
+      moveSnake(directions.LEFT);
+    }
+  } else {
+    // Swipe in the Y direction
+    if (deltaY > 0) {
+      // Swipe down
+      moveSnake(directions.DOWN);
+    } else {
+      // Swipe up
+      moveSnake(directions.UP);
+    }
+  }
+
+  // Prevent the default scrolling behavior of the browser
+  e.preventDefault();
 }
 
 drawBoard();
